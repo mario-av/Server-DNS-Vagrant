@@ -25,3 +25,13 @@ This project uses Vagrant to provision a DNS server with BIND9 on a `debian/bull
    ```bash
    vagrant up
    ```
+
+4. SSH into the virtual machine:
+   ```bash  
+   vagrant ssh
+   ```
+
+5. Verify BIND9 installation:
+   ```bash
+   sudo systemctl status bind9
+   ```
