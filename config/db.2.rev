@@ -1,0 +1,12 @@
+; File: config/db.2.rev
+;
+$TTL 86400
+@ IN SOA debian.izvdns.org. admin.izvdns.org. (
+    2025101201 ; Serial
+    3600       ; Refresh
+    1800       ; Retry
+    604800     ; Expire
+    86400 )    ; Negative Cache TTL
+;
+@               IN NS debian.izvdns.org.
+1               IN PTR debian.izvdns.org. 
