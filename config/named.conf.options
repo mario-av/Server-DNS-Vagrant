@@ -10,7 +10,7 @@ options {
     # Disable zone transfer
     allow-transfer { none; };
     # Listen on port 53 only on IP 192.168.2.1
-    listen-on port 53 { 192.168.2.1; }; 
+    listen-on port 53 { 192.168.2.1; 127.0.0.1; };
     # Enable recursive DNS queries
     recursion yes;
     # Allow recursion only for the 'confiables' ACL

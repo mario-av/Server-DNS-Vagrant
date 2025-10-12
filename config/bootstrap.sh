@@ -2,9 +2,12 @@
 
 # --- CONFIGURATION VARIABLES ---
 IP_SERVER="192.168.2.1"
-SUBNET_OCTET="2"          # Third octet for the reverse zone: 2.168.192.in-addr.arpa
-LAST_OCTET="1"            # Last octet of the server for PTR record
-DOMAIN="izvdns.org"       # Practice domain
+SUBNET_OCTET="2"           # Third octet for the reverse zone
+LAST_OCTET="1"             # Last octet of the server for PTR record
+DOMAIN="izvdns.org"        # Practice domain
+
+ZONE_FILE="/var/lib/bind/db.${DOMAIN}"
+REV_ZONE_FILE="/var/lib/bind/db.${SUBNET_OCTET}.rev"
 
 echo "--- 3. DNS Server Installation ---"
 
@@ -14,27 +17,41 @@ apt-get install -y bind9 bind9utils bind9-doc
 
 echo "--- 4. Server Configuration (IPv4) ---"
 
-# 4. Modify /etc/default/named to use only IPv4
-echo "OPTIONS=\"-u bind -4\"" > /etc/default/named
+# Ensure BIND runs only with IPv4
+echo 'OPTIONS="-u bind -4"' > /etc/default/named
 
 echo "--- 4.1-4.4. Copying and applying zone configurations ---"
 
-# Copy configuration and zone files from the shared folder /vagrant/config/
+# Copy BIND configuration files
 cp /vagrant/config/named.conf.options /etc/bind/named.conf.options
 cp /vagrant/config/named.conf.local /etc/bind/named.conf.local
 
-# Copy zone files and set necessary permissions
-cp /vagrant/config/db.${DOMAIN} /var/lib/bind/
-cp /vagrant/config/db.${SUBNET_OCTET}.rev /var/lib/bind/
-chown bind:bind /var/lib/bind/db.${DOMAIN}
-chown bind:bind /var/lib/bind/db.${SUBNET_OCTET}.rev
+# Copy zone files to /var/lib/bind and set permissions
+cp /vagrant/config/db.${DOMAIN} $ZONE_FILE
+cp /vagrant/config/db.${SUBNET_OCTET}.rev $REV_ZONE_FILE
+chown bind:bind $ZONE_FILE
+chown bind:bind $REV_ZONE_FILE
 
-echo "--- 4.5. Checking and restarting BIND9 ---"
+echo "--- 4.5. Checking zone files ---"
 
-# Syntax check before restarting
+# Check syntax of configuration files
 named-checkconf /etc/bind/named.conf.options
 named-checkconf /etc/bind/named.conf.local
 
-# Restart the service to apply changes
+# Check zone files
+named-checkzone $DOMAIN $ZONE_FILE
+named-checkzone "${SUBNET_OCTET}.168.192.in-addr.arpa" $REV_ZONE_FILE
+
+echo "--- 4.6. Restarting BIND9 ---"
+
+# Restart BIND to apply changes
 systemctl restart bind9
 systemctl status bind9
+
+echo "--- 5. Testing DNS ---"
+
+# Test forward resolution
+dig @127.0.0.1 debian.${DOMAIN}
+
+# Test reverse resolution
+dig @127.0.0.1 -x 192.168.${SUBNET_OCTET}.${LAST_OCTET}
