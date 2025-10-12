@@ -3,7 +3,7 @@
 .vagrant/
 
 # Log files ###
-# *.log
+ *.log
 
 ### Vagrant Patch ###
 *.box

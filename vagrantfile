@@ -1,10 +1,16 @@
-# -*- mode: ruby -*-
-# vi: set ft=ruby :
-
+# Vagrantfile
 Vagrant.configure("2") do |config|
+  # Use the official Debian Bullseye box (1)
   config.vm.box = "debian/bullseye64"
-  config.vm.provision "shell", inline: <<-SHELL
-    apt-get update
-    apt-get install -y bind9 bind9-dnsutils
-    SHELL
+  # Set the server's hostname (2)
+  config.vm.hostname = "debian.izvdns.org"
+
+  # Private network configuration: static IP 192.168.2.1 (3)
+  config.vm.network "private_network", ip: "192.168.2.1" 
+
+  # Mount the host's /config folder to /vagrant/config in the guest (4)
+  config.vm.synced_folder "config", "/vagrant/config" 
+
+  # Provisioning script (5)
+  config.vm.provision :shell, path: "/config/bootstrap.sh"
 end
