@@ -1,0 +1,13 @@
+// File: config/named.conf.local
+
+// Forward lookup zone (izvdns.org)
+zone "izvdns.org" {
+    type master;
+    file "/var/lib/bind/db.izvdns.org";
+};
+
+// Reverse lookup zone (2.168.192.in-addr.arpa)
+zone "2.168.192.in-addr.arpa" { 
+    type master;
+    file "/var/lib/bind/db.2.rev";
+};
