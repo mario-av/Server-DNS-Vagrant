@@ -1,0 +1,28 @@
+# File: config/named.conf.options
+# Definition of an ACL called 'confiables' for the 192.168.2.0/24 network
+acl confiables {
+    192.168.2.0/24; 
+};
+
+options {
+    # Directory where BIND stores cache files
+    directory "/var/cache/bind";
+    # Disable zone transfer
+    allow-transfer { none; };
+    # Listen on port 53 only on IP 192.168.2.1
+    listen-on port 53 { 192.168.2.1; }; 
+    # Enable recursive DNS queries
+    recursion yes;
+    # Allow recursion only for the 'confiables' ACL
+    allow-recursion { confiables; };
+    # Enable DNSSEC validation
+    dnssec-validation yes;
+    # Listen on IPv6 (commented out)
+    // listen-on-v6 { any; };
+    # Configure the DNS servers to which queries will be forwarded
+    // Forwarders (8.8.8.8 and 1.1.1.1)
+    forwarders {
+        8.8.8.8;
+        1.1.1.1;
+    };
+};
