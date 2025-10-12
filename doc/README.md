@@ -49,7 +49,7 @@ Start the virtual machine. This command automatically executes the `bootstrap.sh
 vagrant up
 ```
 
-*(Insert Capture: `vagrant up` successful output)*
+![Vagrant Up Command](../assets/img/img0.png)
 
 -----
 
@@ -65,7 +65,9 @@ Connect to the server via SSH:
 vagrant ssh
 ```
 
-### 2.2. Verify BIND9 Service Status
+---
+
+## 2.2. Verify BIND9 Service Status
 
 Check if the `bind9` service is running and active:
 
@@ -73,11 +75,11 @@ Check if the `bind9` service is running and active:
 sudo systemctl status bind9
 ```
 
-*(Insert Capture: `sudo systemctl status bind9` showing "Active: active (running)")*
+![BIND9 Service Status](../assets/img/img1.png)
 
-### 2.3. Check Zone Syntax
+## 2.3. Check Zone Syntax
 
-Verify that the DNS zone configuration files are syntactically correct using BIND's utility commands.
+Verify that the DNS zone configuration files are syntactically correct:
 
 #### Direct Zone (`izvdns.org`)
 
@@ -85,57 +87,59 @@ Verify that the DNS zone configuration files are syntactically correct using BIN
 sudo named-checkzone izvdns.org /etc/bind/db.izvdns.org
 ```
 
-*(Expected Output: `zone izvdns.org/IN: loaded serial <number>` followed by `OK`)*
-
 #### Reverse Zone (`2.168.192.in-addr.arpa`)
 
 ```bash
 sudo named-checkzone 2.168.192.in-addr.arpa /etc/bind/db.2.168.192.in-addr.arpa
 ```
 
-*(Expected Output: `zone 2.168.192.in-addr.arpa/IN: loaded serial <number>` followed by `OK`)*
+---
 
-*(Insert Capture: `named-checkzone` commands showing successful OK message)*
+## 3. Testing DNS Resolution
 
------
+Use `dig` to verify that the DNS server resolves both local (authoritative) and external domains.
 
-## 3\. Testing DNS Resolution
+### 3.1. Local Resolution (Authoritative Zone)
 
-Use `dig` (Domain Information Groper) to test the server's ability to resolve names both locally (authoritative zone) and externally (using forwarders).
+Query the local DNS server using the loopback:
 
-### 3.1. Test Local Resolution (Authoritative Zone)
-
-Test the direct and reverse resolution of the DNS server's own name and IP address, querying the local host loopback (`@127.0.0.1`).
-
-#### Direct Query (`A` record)
+* **A record (direct query)**
 
 ```bash
 dig @127.0.0.1 debian.izvdns.org
 ```
 
-*(Expected Answer Section: `debian.izvdns.org. ... IN A 192.168.2.1`)*
-
-#### Reverse Query (`PTR` record)
+* **PTR record (reverse query)**
 
 ```bash
 dig @127.0.0.1 -x 192.168.2.1
 ```
 
-*(Expected Answer Section: `1.2.168.192.in-addr.arpa. ... IN PTR debian.izvdns.org.`)*
+### 3.2. External Resolution (Forwarders)
 
-### 3.2. Test External Resolution (Forwarders)
-
-Test resolution for an external domain name (e.g., `google.com`). This confirms that the forwarders (`8.8.8.8`, `1.1.1.1`) configured in `named.conf.options` are working.
+Query an external domain to test forwarders:
 
 ```bash
-dig google.com
+dig @127.0.0.1 google.com
 ```
 
-*(Expected Answer Section: should show the current IP addresses for https://www.google.com/url?sa=E\&source=gmail\&q=google.com)*
+### 3.3. Expected Output
 
-*(Insert Capture: `dig` commands showing both successful local and external resolutions)*
+* **Local queries** should return the authoritative zone records.
+* **External queries** should resolve through forwarders.
 
------
+![Dig Command Output](../assets/img/img2.png)
+![Client Resolution Output](../assets/img/img3.png)
+
+---
+
+  **Tip:** After any configuration changes, restart BIND9:
+
+```bash
+sudo systemctl restart bind9
+```
+
+---
 
 ## 4\. Configuration Reference
 

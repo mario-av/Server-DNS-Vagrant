@@ -1,0 +1,11 @@
+# DNS Server Project
+
+This project sets up a local DNS server on a Debian-based VM using Vagrant.
+
+## Documentation
+
+The full documentation is available in the [docs folder](./docs).
+
+You can also view it directly on GitHub:
+
+- [DNS Setup and Configuration](./docs/README.md)
